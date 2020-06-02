@@ -1,0 +1,74 @@
+#Arch Installation Guide
+#Installing to both 
+
+/dev/sda	windows
+     sda1	windows EFI
+/dev/sdb	linux
+
+#partitioning
+fdisk /dev/sdb
+	g 	set as gpt
+	n	1
+	n   2
+	w
+
+#formating
+mkfs.xfs /dev/sdb1 #for /
+mkfs.xfs /dev/sdb2 #for /home
+
+#mounting
+mount /dev/sdb1	/mnt
+mkdir -p /mnt/boot/EFI
+mkdir /mnt/home
+mount /dev/sda1 /mnt/boot/EFI
+mount /dev/sdb2 /mnt/home
+
+#base installation
+pacstrap /mnt base linux linux-firmware vim
+
+#fstab generate
+genfstab -U /mnt >>/mnt/etc/fstab #verify partitions
+
+#Enter installation
+arch-chroot /mnt
+
+#setting timezone
+ln -sfn /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+
+#setting locale
+vim /etc/locale.gen  	#uncomment en_GB.UTF-8
+locale-gen
+vim /etc/locale.conf  ->LANG=en_GB.UTF-8
+
+#setting hostname
+vim /etc/hostname  ->enter name
+vim /etc/hosts
+127.0.0.1	localhost
+::1			localhost
+127.0.1.1	name.localdomain name
+
+#setting root password
+passwd root
+
+#install required packages
+pacman -S grub efibootmgr networkmanager network-manager-applet dialog wireless-tools wpa-supplicant os-prober mtools dosfstools base-devel linux-headers
+grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+
+#exit
+
+#arch
+systemctl start NetworkManager
+systemctl enable NetworkManager
+
+useradd -m -G wheel,power,storage shenny
+
+pacman -S nvidia nvidia-utils amd-ucode
+
+
+
+######################Detailed#################
+ls /sys/firmware/efi/efivars	#list if uefi is enabled
+timedatectl set-local-rtc 1 --adjust-system-clock
+mkfs.fat -F32 /dev/sda5	#if boot is installing seperately
+
