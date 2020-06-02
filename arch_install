@@ -9,7 +9,7 @@
 fdisk /dev/sdb
 	g 	set as gpt
 	n	1
-	n   2
+	n   	2
 	w
 
 #formating
