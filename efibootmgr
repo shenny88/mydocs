@@ -1,0 +1,92 @@
+Use Linux efibootmgr Command to Manage UEFI Boot Menu
+
+
+1 Displaying Current Settings
+
+Simply run the following command. In some Linux distributions like Debian, you need to run it with sudo privilege.
+
+efibootmgr
+
+This command allows you to view the default boot entry (BootCurrent), boot order and all boot entries.  Each boot entry is identified by a boot number in hexadecimal. The asterisk (*) means the boot entry is active.
+
+linux efibootmgr
+
+You can also add -v option to show verbose information.
+
+efibootmgr -v
+
+You can see the EFI system partition number, the partition table type (GPT), UUID of the EFI system partition and the boot loader file.
+
+efibootmgr-show-verbose-information
+
+The above screenshot shows that my EFI system partition (ESP) is on the 7th partition of my hard disk (/dev/sda7). It’s a GPT partition table.
+
+2. Changing Boot Order
+
+First, copy the current boot order. For example, my boot order is:
+
+0013,0012,0014,0000,0001,0002,0003,000D,0011,0007,0008,0009,000A,000B,000C,000E
+
+Then type in the following command
+
+sudo efibootmgr -o
+
+And append the boot order to the above command.
+
+sudo efibootmgr -o 0013,0012,0014,0000,0001,0002,0003,000D,0011,0007,0008,0009,000A,000B,000C,000E
+
+Let’s say you want 0012 to be the first boot entry. All you have to do is move it to the left of 0013 and press Enter.
+
+sudo efibootmgr -o 0012,0013,0014,0000,0001,0002,0003,000D,0011,0007,0008,0009,000A,000B,000C,000E
+
+3. Adding Boot Entry
+
+If you have installed multiple Linux distributions on your computer, but one of the Linux distribution doesn’t have a UEFI boot entry, you can manually add it.
+
+Boot into the Linux distro that doesn’t have UFEI boot entry.  Then make sure it has the EFI version of GRUB boot loader installed.
+
+Debian/Ubuntu/Linux Mint
+
+sudo apt install grub-efi
+
+Fedora
+
+sudo dnf install grub2-efi-modules
+
+Then mount the EFI system partition (ESP) under /boot/efi/ directory. In this example, /dev/sda7 is the ESP.
+
+sudo mount /dev/sda7 /boot/efi/
+
+Then install Grub boot loader to ESP.
+
+sudo grub-install /dev/sda --target=x86_64-efi --efi-directory=/boot/efi/
+
+x86_64-efi means that we are going to install Grub for UEFI firmware. The default target is i386-pc, which is for traditional BIOS firmware.
+
+Now, you should see a new entry in UEFI boot menu with the bootmgr command.  Under the hood, the Grub installer first installs a .efi booloader file to /boot/efi/EFI/<label>/ directory. Usually it’s named grubx64.efi. Then it runs the following command to add a new entry in UEFI boot menu.
+
+efibootmgr -c -d /dev/sda -p 7 -L <label> -l \EFI\<label>\grubx64.efi
+
+Newly added entry will be the first in boot order.
+
+4. Deleteing Boot Entry
+
+Let’s say you have installed multiple Linux distributions on a hard disk so you have multiple boot entries just like the above screenshot. And now you deleted a Linux distro but the boot entry is still there. To remove the respective boot entry, run:
+
+sudo efibootmgr -b <bootnum> -B
+
+For example,
+
+sudo efibootmgr -b 0014 -B
+
+-b option specify the boot number. -B option delete that boot number.
+
+5. Setting a Boot Entry Active or Inactive
+
+A boot entry followed by asterisk indicates that it’s active. Otherwise it’s inactive. To set a boot entry active, run:
+
+sudo efibootmgr -b <bootnum> -a
+
+To set a boot entry inactive, run:
+
+sudo efibootmgr -b <bootnum> -A
