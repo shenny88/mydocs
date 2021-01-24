@@ -10,7 +10,7 @@ if [ $(which apt) ];then
   git clone https://github.com/athityakumar/colorls.git
   sudo gem install colorls
 else
-  sudo pacman -Syy git curl zsh ruby ruby-devel
+  sudo pacman -Syy git curl zsh ruby gcc make
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
   git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
   cd /tmp
