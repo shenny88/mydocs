@@ -2,7 +2,7 @@
 
 #Install Docker on CentOS:
 rhel() {
-  yum install -y device-mapper-persistent-data lvm2
+  yum install -y device-mapper-persistent-data lvm2 yum-utils
   yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   yum install -y docker-ce docker-ce-cli containerd.io
   systemctl start docker
