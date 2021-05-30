@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo setfacl -bR /usr/local/src
+cd /usr/local/src
+sudo chown -R root. .*
+sudo find /usr/local/src -type d -exec chmod 700 {} \;
+sudo find /usr/local/src -type f -exec chmod 600 {} \;

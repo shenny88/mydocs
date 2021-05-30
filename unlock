@@ -1,0 +1,8 @@
+#!/bin/bash
+sudo setfacl -Rdm u:shenny:rwx /usr/local/src
+sudo setfacl -Rm u:shenny:rwx /usr/local/src
+cd /usr/local/src
+sudo chown -R shenny. .*
+sudo find /usr/local/src -type d -exec chmod 755 {} \;
+sudo find /usr/local/src -type f -exec chmod 644 {} \;
+sudo find /usr/local/src -exec chown shenny. {} \;
